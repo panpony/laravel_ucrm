@@ -18,12 +18,27 @@ use App\Http\Controllers\InertiaTestController;
 Route::get('/inertia-test', function () {
     return Inertia::render('InertiaTest', []);
 });
+Route::get('/component-test', function () {
+    return Inertia::render('componentTest', []);
+});
 
-Route::get('/inertia-test/test', [InertiaTestController::class, 'index'])->name('inertia-test-index');
+Route::get('/inertia/index', [InertiaTestController::class, 'index'])->name('inertia.index');
 
-Route::get('/inertia-test/show/{id}',
+Route::get('/inertia/create',
+[InertiaTestController::class, 'create'])
+->name('inertia.create');
+
+Route::post('/inertia/index',
+[InertiaTestController::class, 'store'])
+->name('inertia.store');
+
+Route::get('/inertia/show/{id}',
 [InertiaTestController::class, 'show'])
 ->name('inertia.show');
+
+Route::delete('/inertia/{id}',
+[InertiaTestController::class, 'delete'])
+->name('inertia.delete');
 
 
 Route::get('/', function () {
@@ -34,6 +49,8 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
