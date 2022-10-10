@@ -58,4 +58,3 @@ Route::get('/dashboard', function () {
 
 require __DIR__.'/auth.php';
 
-translate_smiley($matches:array )
