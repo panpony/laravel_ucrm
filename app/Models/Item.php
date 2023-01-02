@@ -12,6 +12,6 @@ class Item extends Model
         'name',
         'memo',
         'price',
-        'is_sailing',
+        'is_selling',
     ];
 }

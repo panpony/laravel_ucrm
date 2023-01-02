@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use Inertia\Inertia;
 
 class ItemController extends Controller
 {
@@ -15,7 +16,12 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
+        $items = Item::select('id', 'name', 'price', 'is_selling')->get();
+
+        return Inertia::render('Items/Index', [
+            'items' => $items
+        ]);
+        // return Inertia::render('Inertia/create');
     }
 
     /**
@@ -25,7 +31,9 @@ class ItemController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Items/Create', [
+            // 'items' => $items
+        ]);
     }
 
     /**
@@ -36,7 +44,24 @@ class ItemController extends Controller
      */
     public function store(StoreItemRequest $request)
     {
-        //
+        $itemRequest = [
+            'name' => $request->name,
+            'memo' => $request->memo,
+            'price' => $request->price,
+        ];
+        \DB::beginTransaction();
+        try {
+            Item::create($itemRequest);
+            \DB::commit();
+            return to_route('items.index')
+                ->with([
+                    'message' => '登録しました',
+                    'status' => 'success'
+                ]);
+        } catch (\Throwable $e) {
+            \DB::rollback();
+            abort(500);
+        }
     }
 
     /**
@@ -47,7 +72,10 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        //
+
+        return Inertia::render('Items/Show', [
+            'item' => $item
+        ]);
     }
 
     /**
@@ -58,7 +86,9 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        //
+        return Inertia::render('Items/Edit', [
+            'item' => $item
+        ]);
     }
 
     /**
@@ -70,7 +100,30 @@ class ItemController extends Controller
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
-        //
+        $itemRequest = $request->all();
+        // dd($itemRequest);
+        $item_id = $itemRequest['id'];
+        \DB::beginTransaction();
+        try {
+            $target = Item::find($item_id);
+            $target->fill([
+                'name' => $request->name,
+                'memo' => $request->memo,
+                'price' => $request->price,
+                'is_selling' => $request->is_selling,
+            ]);
+            $target->save();
+            \DB::commit();
+
+            return to_route('items.index')
+                ->with([
+                    'message' => '更新しました',
+                    'status' => 'success'
+                ]);
+        } catch (\Throwable $e) {
+            \DB::rollback();
+            abort(500);
+        }
     }
 
     /**
@@ -81,6 +134,10 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
-        //
+        $item->delete();
+        return to_route('items.index')->with([
+            'message' => '削除しました。',
+            'status' => 'delete'
+        ]);
     }
 }
